@@ -1,6 +1,5 @@
 import 'package:cours_work/data/repositories/auth_repository.dart';
 import 'package:cours_work/navigation/app_routes.dart';
-import 'package:cours_work/widgets/bluebite_checkbox.dart';
 import 'package:cours_work/widgets/glow_button.dart';
 import 'package:cours_work/widgets/glow_input.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +17,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final passwordController = TextEditingController();
   final confirmController = TextEditingController();
 
-  bool rememberMe = false;
   bool obscurePass1 = true;
   bool obscurePass2 = true;
   bool loading = false;
@@ -111,22 +109,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           setState(() => obscurePass2 = !obscurePass2),
                     ),
 
-                    const SizedBox(height: 20),
-
-                    Row(
-                      children: [
-                        BlueBiteCheckbox(
-                          value: rememberMe,
-                          onChanged: (v) => setState(() => rememberMe = v),
-                        ),
-                        const SizedBox(width: 10),
-                        const Text(
-                          'Запам’ятати мене',
-                          style: TextStyle(color: Colors.white70, fontSize: 15),
-                        ),
-                      ],
-                    ),
-
                     const SizedBox(height: 120),
 
                     GlowButton(
@@ -137,50 +119,51 @@ class _RegisterPageState extends State<RegisterPage> {
                       onPressed: loading
                           ? null
                           : () async {
-                              if (passwordController.text !=
-                                  confirmController.text) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Паролі не співпадають!'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                                return;
-                              }
+                        if (passwordController.text !=
+                            confirmController.text) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Паролі не співпадають!'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                          return;
+                        }
 
-                              setState(() => loading = true);
+                        setState(() => loading = true);
 
-                              try {
-                                await AuthRepository().register(
-                                  username: usernameController.text.trim(),
-                                  email: emailController.text.trim(),
-                                  password: passwordController.text.trim(),
-                                );
+                        try {
+                          await AuthRepository().register(
+                            username: usernameController.text.trim(),
+                            email: emailController.text.trim(),
+                            password: passwordController.text.trim(),
+                          );
 
-                                if (!mounted) return;
+                          if (!mounted) return;
 
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Успішна реєстрація!'),
-                                    backgroundColor: Colors.green,
-                                  ),
-                                );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Успішна реєстрація!'),
+                              backgroundColor: Colors.green,
+                            ),
+                          );
 
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  AppRoutes.login,
-                                );
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Помилка реєстрації: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              } finally {
-                                if (mounted) setState(() => loading = false);
-                              }
-                            },
+                          Navigator.pushReplacementNamed(
+                            context,
+                            AppRoutes.login,
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content:
+                              Text('Помилка реєстрації: ${e.toString()}'),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
+                        } finally {
+                          if (mounted) setState(() => loading = false);
+                        }
+                      },
                     ),
                     const SizedBox(height: 60),
 

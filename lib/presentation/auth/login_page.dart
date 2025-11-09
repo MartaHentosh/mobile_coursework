@@ -1,4 +1,5 @@
 import 'package:cours_work/data/repositories/auth_repository.dart';
+import 'package:cours_work/data/services/local_storage.dart';
 import 'package:cours_work/navigation/app_routes.dart';
 import 'package:cours_work/widgets/bluebite_checkbox.dart';
 import 'package:cours_work/widgets/glow_button.dart';
@@ -19,6 +20,45 @@ class _LoginPageState extends State<LoginPage> {
   bool rememberMe = false;
   bool obscureText = true;
   bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAuth();
+  }
+
+  Future<void> _checkAuth() async {
+    final token = await LocalStorage.getToken();
+    if (token != null && token.isNotEmpty) {
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    }
+  }
+
+  Future<void> _login() async {
+    setState(() => loading = true);
+
+    try {
+      await AuthRepository().login(
+        username: emailController.text.trim(),
+        password: passwordController.text.trim(),
+        rememberMe: rememberMe,
+      );
+
+      if (!mounted) return;
+      Navigator.pushReplacementNamed(context, AppRoutes.home);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => loading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 32),
 
-                    GlowInput(controller: emailController, hint: 'Пошта'),
+                    GlowInput(controller: emailController, hint: 'Логін'),
                     const SizedBox(height: 20),
 
                     GlowInput(
@@ -89,12 +129,10 @@ class _LoginPageState extends State<LoginPage> {
                       icon: obscureText
                           ? Icons.visibility_off
                           : Icons.visibility,
-                      onIconTap: () {
-                        setState(() {
-                          obscureText = !obscureText;
-                        });
-                      },
+                      onIconTap: () =>
+                          setState(() => obscureText = !obscureText),
                     ),
+
                     const SizedBox(height: 20),
 
                     Row(
@@ -111,38 +149,13 @@ class _LoginPageState extends State<LoginPage> {
                       ],
                     ),
                     const SizedBox(height: 150),
+
                     GlowButton(
                       text: loading ? 'Завантаження...' : 'Увійти',
                       isPrimary: false,
                       height: 42,
                       width: 220,
-                      onPressed: loading
-                          ? null
-                          : () async {
-                              setState(() => loading = true);
-
-                              try {
-                                await AuthRepository().login(
-                                  username: emailController.text.trim(),
-                                  password: passwordController.text.trim(),
-                                );
-
-                                if (!mounted) return;
-                                Navigator.pushReplacementNamed(
-                                  context,
-                                  AppRoutes.home,
-                                );
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('Помилка входу: $e'),
-                                    backgroundColor: Colors.red,
-                                  ),
-                                );
-                              } finally {
-                                if (mounted) setState(() => loading = false);
-                              }
-                            },
+                      onPressed: loading ? null : _login,
                     ),
                     const SizedBox(height: 80),
 
