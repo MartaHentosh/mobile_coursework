@@ -11,10 +11,15 @@ class RouteGenerator {
       case AppRoutes.splash:
       case AppRoutes.login:
         return _fadeRoute(const LoginPage(), settings);
+
       case AppRoutes.register:
         return _fadeRoute(const RegisterPage(), settings);
+
       case AppRoutes.home:
         return _slideRoute(const HomePage(), settings);
+
+
+
       default:
         return _errorRoute();
     }
