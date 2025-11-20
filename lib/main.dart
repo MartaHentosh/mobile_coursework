@@ -6,6 +6,7 @@ import 'package:cours_work/presentation/home/cubit/restaurants_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+
 void main() {
   runApp(const BlueBiteApp());
 }
