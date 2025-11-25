@@ -1,6 +1,7 @@
 import 'package:cours_work/data/models/restaurant.dart';
 import 'package:cours_work/data/repositories/cart_repository.dart';
 import 'package:cours_work/data/repositories/restaurants_repository.dart';
+import 'package:cours_work/navigation/app_routes.dart';
 import 'package:cours_work/presentation/cart/state/cart_counter.dart';
 import 'package:flutter/material.dart';
 
@@ -50,19 +51,22 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
   Future<void> _handleAddDish(int dishId, String dishName) async {
     const int userId = 1;
 
-    final success = await _cartRepo.addDishToCart(
-      userId: userId,
-      dishId: dishId,
-    );
+    try {
+      await _cartRepo.addDishToCart(
+        userId: userId,
+        dishId: dishId,
+      );
 
-    if (!mounted) return;
+      if (!mounted) return;
 
-    if (success) {
       cartCounter.increment();
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('$dishName — додано в кошик')));
-    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('$dishName — додано в кошик')),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      debugPrint('Error adding to cart: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Помилка додавання в кошик')),
       );
@@ -108,7 +112,7 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
                 children: [
                   IconButton(
                     onPressed: () {
-                      // TODO: перейти у кошик
+                      Navigator.pushNamed(context, AppRoutes.cart);
                     },
                     icon: const Icon(
                       Icons.shopping_cart_outlined,
@@ -149,17 +153,17 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
             borderRadius: BorderRadius.circular(16),
             child: restaurant!.imageUrl.startsWith('http')
                 ? Image.network(
-                    restaurant!.imageUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  )
+              restaurant!.imageUrl,
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            )
                 : Image.asset(
-                    restaurant!.imageUrl,
-                    height: 200,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+              restaurant!.imageUrl,
+              height: 200,
+              width: double.infinity,
+              fit: BoxFit.cover,
+            ),
           ),
 
           const SizedBox(height: 20),
@@ -183,7 +187,7 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
           const SizedBox(height: 12),
 
           ...restaurant!.dishes.map(
-            (d) => Container(
+                (d) => Container(
               margin: const EdgeInsets.only(bottom: 14),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -196,17 +200,17 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
                     borderRadius: BorderRadius.circular(12),
                     child: d.imageUrl.startsWith('http')
                         ? Image.network(
-                            d.imageUrl,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          )
+                      d.imageUrl,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    )
                         : Image.asset(
-                            d.imageUrl,
-                            width: 80,
-                            height: 80,
-                            fit: BoxFit.cover,
-                          ),
+                      d.imageUrl,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                    ),
                   ),
                   const SizedBox(width: 12),
 
