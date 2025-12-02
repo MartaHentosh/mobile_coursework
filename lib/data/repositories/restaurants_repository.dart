@@ -23,7 +23,6 @@ class RestaurantsRepository {
     }
   }
 
-
   Future<String?> saveFiltered({
     required List<int> categoryIds,
     required List<int> textFilterIds,
@@ -55,6 +54,16 @@ class RestaurantsRepository {
     } catch (e) {
       debugPrint('❌ fetchSavedFiltered error: $e');
       return [];
+    }
+  }
+
+  Future<Restaurant?> fetchRestaurantById(int id) async {
+    try {
+      final data = await _service.getRestaurantById(id);
+      return Restaurant.fromJson(data);
+    } catch (e) {
+      debugPrint('❌ fetchRestaurantById error: $e');
+      return null;
     }
   }
 }

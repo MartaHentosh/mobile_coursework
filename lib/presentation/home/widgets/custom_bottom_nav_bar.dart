@@ -32,14 +32,14 @@ class CustomBottomNavBar extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Positioned(
-            bottom: 45,
+            bottom: 35,
             left: 0,
             right: 0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildIcon(Icons.home_outlined, 0),
-                const SizedBox(width: 80),
+                const SizedBox(width: 100),
                 _buildIcon(Icons.person_outline, 2),
               ],
             ),

@@ -57,15 +57,15 @@ class RestaurantsService {
 
       final Response<Map<String, dynamic>> res = await _dio
           .post<Map<String, dynamic>>(
-            '/home/restaurants/save-filtered',
-            data: {
-              'category_ids': categoryIds,
-              'text_filter_ids': textFilterIds,
-            },
-            options: Options(
-              headers: {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'},
-            ),
-          );
+        '/home/restaurants/save-filtered',
+        data: {
+          'category_ids': categoryIds,
+          'text_filter_ids': textFilterIds,
+        },
+        options: Options(
+          headers: {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'},
+        ),
+      );
 
       debugPrint('✅ saveFiltered → ${res.data}');
       return res.data ?? {};
@@ -88,6 +88,23 @@ class RestaurantsService {
     } catch (e) {
       debugPrint('❌ getSavedFiltered error: $e');
       return [];
+    }
+  }
+
+  Future<Map<String, dynamic>> getRestaurantById(int id) async {
+    try {
+      final Response<Map<String, dynamic>> res =
+      await _dio.get<Map<String, dynamic>>(
+        '/home/restaurants/$id',
+        options: Options(
+          headers: {'Cache-Control': 'no-cache', 'Pragma': 'no-cache'},
+        ),
+      );
+
+      return res.data ?? {};
+    } catch (e) {
+      debugPrint('❌ getRestaurantById error: $e');
+      rethrow;
     }
   }
 }

@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 class AuthService {
   final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://35.225.117.203:8000/',
+      baseUrl: 'http://127.0.0.1:8000 /',
       headers: {'Content-Type': 'application/json'},
     ),
   )..interceptors.add(

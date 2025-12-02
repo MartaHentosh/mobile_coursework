@@ -2,7 +2,9 @@ import 'package:cours_work/core/app_colors.dart';
 import 'package:cours_work/navigation/app_routes.dart';
 import 'package:cours_work/presentation/auth/login_page.dart';
 import 'package:cours_work/presentation/auth/register_page.dart';
+import 'package:cours_work/presentation/cart/cart_page.dart';
 import 'package:cours_work/presentation/home/home_page.dart';
+import 'package:cours_work/presentation/restaurant_details/restaurant_details_page.dart';
 import 'package:flutter/material.dart';
 
 class RouteGenerator {
@@ -18,7 +20,14 @@ class RouteGenerator {
       case AppRoutes.home:
         return _slideRoute(const HomePage(), settings);
 
+      case AppRoutes.restaurantDetails:
+        final restaurantId = settings.arguments as int;
+        return MaterialPageRoute(
+          builder: (_) => RestaurantDetailsPage(restaurantId: restaurantId),
+        );
 
+      case AppRoutes.cart:
+        return _slideRoute(const CartPage(), settings);
 
       default:
         return _errorRoute();
