@@ -58,7 +58,7 @@ class CartService {
             ),
           );
 
-      return res.statusCode == 200;
+      return res.statusCode != null && res.statusCode! < 300;
     } catch (e) {
       debugPrint('❌ clearCart error: $e');
       return false;
@@ -75,7 +75,7 @@ class CartService {
             ),
           );
 
-      return res.statusCode == 200;
+      return res.statusCode != null && res.statusCode! < 300;
     } catch (e) {
       debugPrint('❌ checkout error: $e');
       return false;

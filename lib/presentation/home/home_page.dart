@@ -1,8 +1,6 @@
 import 'package:cours_work/presentation/home/cubit/restaurants_cubit.dart';
-import 'package:cours_work/presentation/home/widgets/custom_bottom_nav_bar.dart';
 import 'package:cours_work/presentation/home/widgets/home_categories.dart';
 import 'package:cours_work/presentation/home/widgets/home_filters/home_filters_bar.dart';
-import 'package:cours_work/presentation/home/widgets/home_repeat_orders.dart';
 import 'package:cours_work/presentation/home/widgets/home_restaurants_list.dart';
 import 'package:cours_work/presentation/home/widgets/home_search_bar.dart';
 import 'package:cours_work/presentation/home/widgets/home_subscribe_brands.dart';
@@ -17,7 +15,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0;
   int? _selectedCategoryId;
 
   @override
@@ -37,10 +34,7 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       backgroundColor: const Color(0xFF011C40),
-      bottomNavigationBar: CustomBottomNavBar(
-        selectedIndex: _selectedIndex,
-        onTap: (i) => setState(() => _selectedIndex = i),
-      ),
+
       body: Stack(
         children: [
           Container(
@@ -78,6 +72,7 @@ class _HomePageState extends State<HomePage> {
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 30),
                   child: HomeSearchBar(),
                 ),
+
                 const SizedBox(height: 20),
 
                 Expanded(
@@ -117,17 +112,6 @@ class _HomePageState extends State<HomePage> {
                         const HomeFiltersBar(),
                         const SizedBox(height: 25),
 
-                        const HomeRecentOrders(
-                          recentOrders: [
-                            {
-                              'image': 'assets/images/pizza.png',
-                              'name': 'IQ Pizza',
-                              'rating': '98%',
-                              'time': '30–40 хв',
-                              'delivery': '19.00₴',
-                            },
-                          ],
-                        ),
 
                         const SizedBox(height: 25),
                         const HomeSubscribeBrands(),
