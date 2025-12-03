@@ -1,17 +1,9 @@
+import 'package:cours_work/data/services/api_client.dart';
+import 'package:cours_work/data/services/local_storage.dart';
 import 'package:dio/dio.dart';
 
 class AuthService {
-  final Dio _dio = Dio(
-    BaseOptions(
-      baseUrl: 'http://127.0.0.1:8000 /',
-      headers: {'Content-Type': 'application/json'},
-    ),
-  )..interceptors.add(
-    LogInterceptor(
-      requestBody: true,
-      responseBody: true,
-    ),
-  );
+  final Dio _dio = ApiClient.dio;
 
   Future<Response<dynamic>> register({
     required String username,
@@ -20,11 +12,7 @@ class AuthService {
   }) async {
     return await _dio.post(
       'auth/register',
-      data: {
-        'username': username,
-        'email': email,
-        'password': password,
-      },
+      data: {'username': username, 'email': email, 'password': password},
     );
   }
 
@@ -32,15 +20,19 @@ class AuthService {
     required String username,
     required String password,
   }) async {
-    return await _dio.post(
+    final response = await _dio.post(
       'auth/login',
-      data: FormData.fromMap({
-        'username': username,
-        'password': password,
-      }),
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-      ),
+      data: FormData.fromMap({'username': username, 'password': password}),
+      options: Options(contentType: Headers.formUrlEncodedContentType),
     );
+
+    if (response.statusCode == 200 && response.data != null) {
+      final token = response.data['access_token'];
+
+      if (token != null) {
+        await LocalStorage.saveToken(token.toString());
+      }
+    }
+    return response;
   }
 }
