@@ -1,10 +1,12 @@
-import 'package:cours_work/data/services/api_client.dart';
 import 'package:cours_work/data/services/auth_service.dart';
 import 'package:cours_work/data/services/local_storage.dart';
+import 'package:cours_work/data/services/profile_service.dart';
 import 'package:dio/dio.dart';
+import 'package:jwt_decode/jwt_decode.dart';
 
 class AuthRepository {
   final _api = AuthService();
+  final _profileApi = ProfileService();
 
   Future<String> login({
     required String username,
@@ -19,11 +21,29 @@ class AuthRepository {
         throw Exception('Не вдалося отримати токен доступу.');
       }
 
+      final payload = Jwt.parseJwt(token);
+
+      final dynamic rawId = payload['id'];
+      final int? userId = rawId is int ? rawId : int.tryParse(rawId.toString());
+
+      if (userId == null) {
+        throw Exception('Помилка: не вдалося отримати userId з токена.');
+      }
+
+      await LocalStorage.saveUserId(userId);
+
+      final profile = await _profileApi.getProfile();
+
+      final bool isAdmin =
+          profile['is_admin'] == 1 ||
+          profile['is_admin'] == true ||
+          profile['is_admin'] == '1';
+
+      await LocalStorage.saveIsAdmin(isAdmin);
+
       if (rememberMe) {
         await LocalStorage.saveToken(token);
       }
-
-      await ApiClient.setToken();
 
       return token;
     } on DioException catch (e) {
@@ -31,9 +51,11 @@ class AuthRepository {
       final detail = e.response?.data is Map
           ? e.response?.data['detail']?.toString()
           : null;
+
       if (code == 401) throw Exception('Невірний логін або пароль.');
       if (code == 400 && detail != null) throw Exception(detail);
       if (code == 500) throw Exception('Помилка сервера. Спробуйте пізніше.');
+
       throw Exception(
         detail ?? 'Помилка мережі. Перевірте інтернет і спробуйте ще.',
       );
@@ -54,8 +76,10 @@ class AuthRepository {
       final detail = e.response?.data is Map
           ? e.response?.data['detail']?.toString()
           : null;
+
       if (code == 400 && detail != null) throw Exception(detail);
       if (code == 500) throw Exception('Помилка сервера. Спробуйте пізніше.');
+
       throw Exception(
         detail ?? 'Помилка мережі. Перевірте інтернет і спробуйте ще.',
       );

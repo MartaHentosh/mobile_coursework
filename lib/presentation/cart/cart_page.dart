@@ -1,5 +1,8 @@
 import 'package:cours_work/data/models/cart.dart';
 import 'package:cours_work/data/repositories/cart_repository.dart';
+import 'package:cours_work/data/services/local_storage.dart';
+import 'package:cours_work/data/services/notification_service.dart';
+import 'package:cours_work/navigation/app_routes.dart';
 import 'package:cours_work/presentation/cart/state/cart_counter.dart';
 import 'package:cours_work/presentation/cart/widgets/address_section.dart';
 import 'package:cours_work/presentation/cart/widgets/cart_item_tile.dart';
@@ -20,8 +23,7 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   final CartRepository _cartRepo = CartRepository();
 
-  // ХАРДКОД ЦІНИ ДОСТАВКИ
-  static const double _fixedDeliveryFee = 40.0;
+  static const double _fixedDeliveryFee = 40;
 
   List<CartItem> _cart = [];
   bool _loading = true;
@@ -40,8 +42,16 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> _loadCart() async {
-    const int userId = 1;
+    final int? userId = await LocalStorage.getUserId();
+
+    if (userId == null) {
+      debugPrint('❌ userId == null — користувач не авторизований');
+      setState(() => _loading = false);
+      return;
+    }
+
     final data = await _cartRepo.fetchCart(userId);
+
     if (mounted) {
       setState(() {
         _cart = data;
@@ -77,16 +87,58 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> _checkout() async {
-    const int userId = 1;
+    final int? userId = await LocalStorage.getUserId();
+
+    if (userId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Помилка: користувач не авторизований')),
+      );
+      return;
+    }
+
     final ok = await _cartRepo.checkout(userId);
+
     if (!mounted) return;
 
     if (ok) {
       cartCounter.reset();
-      Navigator.pop(context);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Замовлення оформлено!')));
+
+      NotificationService.showNotification(
+        id: 1,
+        title: 'Замовлення прийнято',
+        body: 'Ми вже працюємо над вашим замовленням ❤️',
+        delaySeconds: 5,
+      );
+
+      NotificationService.showNotification(
+        id: 2,
+        title: 'Готуємо вашу страву',
+        body: 'Шеф вже чарує над нею 👨‍🍳🔥',
+        delaySeconds: 12,
+      );
+
+      NotificationService.showNotification(
+        id: 3,
+        title: "Кур'єр забрав замовлення",
+        body: 'Вже в дорозі до вас, приготуйтеся 🚴‍♂️💨',
+        delaySeconds: 22,
+      );
+
+      NotificationService.showNotification(
+        id: 4,
+        title: 'Кур’єр поруч',
+        body: 'Виходьте зустрічати 😎',
+        delaySeconds: 35,
+      );
+
+      NotificationService.showNotification(
+        id: 5,
+        title: 'Замовлення доставлено',
+        body: 'Смачного! 😍',
+        delaySeconds: 50,
+      );
+
+      Navigator.pushNamed(context, AppRoutes.success);
     } else {
       ScaffoldMessenger.of(
         context,
@@ -94,17 +146,14 @@ class _CartPageState extends State<CartPage> {
     }
   }
 
-  // Рахуємо суму за їжу
   double get _foodSum {
     return _cart.fold(0, (sum, item) => sum + (item.dishPrice * item.quantity));
   }
 
-  // Якщо кур'єр — додаємо 40 грн, якщо ні — 0
   double get _currentDeliveryPrice {
     return _deliveryType == DeliveryType.courier ? _fixedDeliveryFee : 0.0;
   }
 
-  // Фінальна сума
   double get _totalSum => _foodSum + _currentDeliveryPrice;
 
   @override
@@ -128,6 +177,7 @@ class _CartPageState extends State<CartPage> {
         children: [
           ..._cart.map((item) => CartItemTile(item: item)),
           const SizedBox(height: 24),
+
           DeliverySection(
             selectedType: _deliveryType,
             deliveryFee: _fixedDeliveryFee,
@@ -140,11 +190,14 @@ class _CartPageState extends State<CartPage> {
           ],
 
           const SizedBox(height: 24),
+
           PaymentSection(
             selectedMethod: _paymentMethod,
             onChanged: _changePayment,
           ),
+
           const SizedBox(height: 32),
+
           CartSummaryCard(
             totalSum: _totalSum,
             bonus: _foodSum * 0.05,

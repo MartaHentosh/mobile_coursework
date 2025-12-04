@@ -1,6 +1,7 @@
 import 'package:cours_work/data/models/restaurant.dart';
 import 'package:cours_work/data/repositories/cart_repository.dart';
 import 'package:cours_work/data/repositories/restaurants_repository.dart';
+import 'package:cours_work/data/services/local_storage.dart';
 import 'package:cours_work/navigation/app_routes.dart';
 import 'package:cours_work/presentation/cart/state/cart_counter.dart';
 import 'package:flutter/material.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 class RestaurantDetailsPage extends StatefulWidget {
   final int restaurantId;
 
-  const RestaurantDetailsPage({super.key, required this.restaurantId});
+  const RestaurantDetailsPage({required this.restaurantId, super.key});
 
   @override
   State<RestaurantDetailsPage> createState() => _RestaurantDetailsPageState();
@@ -49,20 +50,25 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
   }
 
   Future<void> _handleAddDish(int dishId, String dishName) async {
-    const int userId = 1;
+    final int? userId = await LocalStorage.getUserId();
+
+    if (userId == null) {
+      debugPrint('❌ userId is NULL — можливо юзер не залогінений');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Помилка: користувач не авторизований')),
+      );
+      return;
+    }
 
     try {
-      await _cartRepo.addDishToCart(
-        userId: userId,
-        dishId: dishId,
-      );
+      await _cartRepo.addDishToCart(userId: userId, dishId: dishId);
 
       if (!mounted) return;
 
       cartCounter.increment();
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('$dishName — додано в кошик')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('$dishName — додано в кошик')));
     } catch (e) {
       if (!mounted) return;
 
@@ -153,17 +159,17 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
             borderRadius: BorderRadius.circular(16),
             child: restaurant!.imageUrl.startsWith('http')
                 ? Image.network(
-              restaurant!.imageUrl,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            )
+                    restaurant!.imageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  )
                 : Image.asset(
-              restaurant!.imageUrl,
-              height: 200,
-              width: double.infinity,
-              fit: BoxFit.cover,
-            ),
+                    restaurant!.imageUrl,
+                    height: 200,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                  ),
           ),
 
           const SizedBox(height: 20),
@@ -187,7 +193,7 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
           const SizedBox(height: 12),
 
           ...restaurant!.dishes.map(
-                (d) => Container(
+            (d) => Container(
               margin: const EdgeInsets.only(bottom: 14),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -200,17 +206,17 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
                     borderRadius: BorderRadius.circular(12),
                     child: d.imageUrl.startsWith('http')
                         ? Image.network(
-                      d.imageUrl,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    )
+                            d.imageUrl,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          )
                         : Image.asset(
-                      d.imageUrl,
-                      width: 80,
-                      height: 80,
-                      fit: BoxFit.cover,
-                    ),
+                            d.imageUrl,
+                            width: 80,
+                            height: 80,
+                            fit: BoxFit.cover,
+                          ),
                   ),
                   const SizedBox(width: 12),
 
@@ -238,7 +244,8 @@ class _RestaurantDetailsPageState extends State<RestaurantDetailsPage> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          '${d.price.toStringAsFixed(0)}₴ · ${d.weight.toStringAsFixed(0)} г',
+                          '${d.price.toStringAsFixed(0)
+                          }₴ · ${d.weight.toStringAsFixed(0)} г',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 15,

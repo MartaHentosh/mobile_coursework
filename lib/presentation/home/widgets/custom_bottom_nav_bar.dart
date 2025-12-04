@@ -15,15 +15,15 @@ class CustomBottomNavBar extends StatelessWidget {
       decoration: const BoxDecoration(
         color: Color(0xFF023859),
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(40),
-          topRight: Radius.circular(40),
+          topLeft: Radius.circular(30),
+          topRight: Radius.circular(30),
         ),
         boxShadow: [
           BoxShadow(
             color: Color(0xFFA7EBF2),
-            blurRadius: 25,
-            spreadRadius: -5,
-            offset: Offset(0, -5),
+            blurRadius: 15,
+            spreadRadius: -2,
+            offset: Offset(0, -10),
           ),
         ],
       ),

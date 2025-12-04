@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class CartItemTile extends StatelessWidget {
   final CartItem item;
 
-  const CartItemTile({super.key, required this.item});
+  const CartItemTile({required this.item, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -31,14 +31,14 @@ class CartItemTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  "${item.dishPrice}₴ × ${item.quantity}",
+                  '${item.dishPrice}₴ × ${item.quantity}',
                   style: const TextStyle(color: Colors.white70, fontSize: 13),
                 ),
               ],
             ),
           ),
           Text(
-            "${(item.dishPrice * item.quantity).toStringAsFixed(0)}₴",
+            '${(item.dishPrice * item.quantity).toStringAsFixed(0)}₴',
             style: const TextStyle(color: Colors.white, fontSize: 16),
           ),
         ],
